@@ -1,6 +1,6 @@
 # Monogatari Visual Novel Unspaghettifier
 
-Helps you keep up with the growing script of your Monogatari novel.
+Helps you keep up with the growing script of your Monogatari novel. \
 Keep track of possible storylines, visualizing them in a graph.
 
 
