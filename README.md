@@ -11,7 +11,7 @@ Python 2 or 3.
 
 ## How To
 
-1. Put `unspaghetti.py` in your project folder (where the `dist` folder is located).
+1. Put `unspaghetti.py` in your Monogatari project folder (where the `dist` folder is located).
 2. Open the terminal and go to your project folder, if you're not already there. \
 Launch from the command line: `python unspaghetti.py`. \
 A file called `viz.txt` will be created.
