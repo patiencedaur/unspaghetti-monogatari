@@ -5,7 +5,7 @@ Helps you keep up with the growing script of your Monogatari novel.
 Keep track of possible storylines, visualizing them in a graph.
 
 # How To
-1. Put this file in your project folder (where the "dist" folder is located).
+1. Put this file in your project folder (where the "js" folder is located).
 2. Open the terminal and go to your project folder.
 Launch from the command line: `python unspaghetti.py`.
 A file called `viz.txt` will be created.
@@ -22,7 +22,7 @@ import os
 from itertools import cycle
 
 # Only look for story scripts in this folder
-folder = 'dist/js'
+folder = 'js'
 # Do not consider non-storyline-related JS
 file_mask = r'^(?:(?!options)(?!main)(?!storage).)*?\.js$'
 
