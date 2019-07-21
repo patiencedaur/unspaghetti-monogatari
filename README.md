@@ -16,7 +16,7 @@ Python 2 or 3.
 Launch from the command line: `python unspaghetti.py`. \
 A file called `viz.txt` will be created.
 This is your story in the form of a graph in DOT language.
-3. Copy the content of `viz.txt` and post it on [viz-js.com].
+3. Copy the content of `viz.txt` and post it on viz-js.com.
 The rest will be done by Viz.js.
 Viz.js is Graphviz (a library to draw graphs) on the web.
 4. Ta-da!

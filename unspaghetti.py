@@ -29,16 +29,11 @@ file_mask = r'^(?:(?!options)(?!main)(?!storage).)*?\.js$'
 # Regular Expressions #
 
 # jump directive with next label name
-regex_jump = r'jump \w+'
-# monogatari.label(SOMETHING]);
+monogatari_jump = r'jump \w+'
+
 # Do not use spaces before the opening bracket
 # after monogatari.label in the story scripts
 # (it doesn't work for whatever reason)
-regex_label = r'monogatari\.label\s?\(.*?\]\);?'
-# monogatari.script({SOMETHING});
-regex_script = r'monogatari\.script\s?\(\{.*?\}\);'
-# patterns like 'label_name': [something], encountered in the Start section
-regex_start_parts = r'(?:\"|\')\w+(?:\"|\')\:\s\[.*?\]'
 
 
 # Data Extraction #
@@ -57,7 +52,35 @@ def regular_labels(file_no_spaces):
     Return an iterator over labels in regularly formatted files
     (not like the Start label in script.js).
     """
-    return re.finditer(regex_label, file_no_spaces)
+    # monogatari.label(SOMETHING]);
+    monogatari_label = r'monogatari\.label\s?\(.*?\]\);?'
+    return re.finditer(monogatari_label, file_no_spaces)
+
+
+def curly_bracket_parse(text):
+    """
+    Helper for parsing monogatari.script().
+    Return everything between the first left and the last right
+    curly brackets - with other curly brackets inside.
+    """
+    bracket_balance = 0 # left +, right -
+    first_left = 0
+    last_right = 0
+
+    for i in range(len(text)):
+        if text[i] == '{':
+            if bracket_balance == 0:
+                first_left = i
+            bracket_balance += 1
+        elif text[i] == '}':
+            bracket_balance -= 1
+            if bracket_balance == 0:
+                # becomes zero only if bracket is passed and closed
+                # (that's why we decrement first and then check the condition)
+                last_right = i
+                break # skip everything after the end of monogatari.script()
+
+    return text[first_left:last_right]
 
 
 def start_labels(script_file_no_spaces):
@@ -66,10 +89,14 @@ def start_labels(script_file_no_spaces):
     Only applicable to the file called script.js
     (because it is the only one using monogatari.script()-formatted labels).
     """
-    # extract the "Start" script from the file, omitting other functions etc.
-    starting_script = re.findall(regex_script, script_file_no_spaces)[0]
+    # find everything AFTER "monogatari.script"
+    text = script_file_no_spaces.partition("monogatari.script")[2]
+    # extract everything in curly brackets
+    starting_script = curly_bracket_parse(text)
+    # look for anything like 'LabelName': [content]
     # iterate over labels
-    return re.finditer(regex_start_parts, starting_script)
+    monogatari_start_parts = r'(?:\"|\')\w+(?:\"|\')\:\s\[.*?\]'
+    return re.finditer(monogatari_start_parts, starting_script)
 
 
 def parse_start(label):
@@ -78,8 +105,9 @@ def parse_start(label):
     monogatari.script({'name': [content], 'name2': [more_content]});
     Parse a label like this and return (name, [where it jumps to]).
     """
-    label_name = label.group().split('"')[1]
-    jumps = re.findall(regex_jump, label.group())
+    name_and_content = label.group().split(": [")
+    label_name = name_and_content[0][1:-1]
+    jumps = re.findall(monogatari_jump, name_and_content[1])
     jump_names = [j[5:] for j in jumps]
     return (label_name, jump_names)
 
@@ -91,7 +119,7 @@ def parse_regular(label):
     """
     label_content = label.group().split('monogatari.label')[1]
     label_name = label_content[2:].split('\'')[0]
-    jumps = re.findall(regex_jump, label_content)
+    jumps = re.findall(monogatari_jump, label_content)
     jump_names = [j[5:] for j in jumps]
     return (label_name, jump_names)
 
