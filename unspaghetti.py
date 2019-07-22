@@ -95,7 +95,7 @@ def start_labels(script_file_no_spaces):
     starting_script = curly_bracket_parse(text)
     # look for anything like 'LabelName': [content]
     # iterate over labels
-    monogatari_start_parts = r'(?:\"|\')\w+(?:\"|\')\:\s\[.*?\]'
+    monogatari_start_parts = r'(?:\"|\')\w+(?:\"|\')\:\s{0,1}\[.*?\]'
     return re.finditer(monogatari_start_parts, starting_script)
 
 
@@ -105,7 +105,7 @@ def parse_start(label):
     monogatari.script({'name': [content], 'name2': [more_content]});
     Parse a label like this and return (name, [where it jumps to]).
     """
-    name_and_content = label.group().split(": [")
+    name_and_content = re.split("\:\s{0,1}\[", label.group())
     label_name = name_and_content[0][1:-1]
     jumps = re.findall(monogatari_jump, name_and_content[1])
     jump_names = [j[5:] for j in jumps]
